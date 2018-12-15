@@ -3,7 +3,7 @@
 from collections import Counter
 
 def read_Authlog():
-    path = '/var/log/test-auth.log'
+    path = '/var/log/auth.log'
     FINDSTRING = 'Accepted'
     with open(path,'r') as f:
         targets = [line for line in f if FINDSTRING in line]
@@ -18,7 +18,6 @@ def parse_Authlog():
         ip = linesplit[10]
         iplist.append(ip)
     final = Counter(iplist)
-    print(final)
     return final
 
 def final_Print():
@@ -28,7 +27,6 @@ def final_Print():
         print("{} - {}".format(ip, number))
 
 def main():
-    # parse_Authlog()
     final_Print()
 
 if __name__ == "__main__":
