@@ -13,8 +13,35 @@ from collections import Counter
 class Readlogs():
 
     def __init__(self, parent=None):
+
+        #Uncomment next line to run some self tests
+        # self.diagnostics()
+
         self.read_argparse()
         self.final_Print()
+
+        #Uncomment next line to run test function
+        # self.test()
+
+    def diagnostics(self):
+        self.read_argparse()
+        print("ARGS: {}".format(self.args))
+        print("SaveDir: {}".format(self.savedir))
+        print("RandoNumber: {}".format(self.randonumber))
+
+    def test(self):
+        targets = self.read_Authlog("Accepted")
+        iplist = []
+        for line in targets:
+            linesplit = line.split()
+            ip = linesplit[10]
+            user = linesplit[8]
+            iplist.append((user, ip))
+        final = Counter(iplist)
+        print(final)
+        for ip, number in final.items():
+            print("{} - {} - {}".format(ip[0], number, ip[1]))
+
 
     def read_Authlog(self, findstr):
         path = '/var/log/test-auth.log'
@@ -24,22 +51,26 @@ class Readlogs():
         return targets
 
     def parse_Authlogaccepted(self):
-        targets = self.read_Authlog("Accepted")
-        iplist = []
-        for line in targets:
-            linesplit = line.split()
-            ip = linesplit[10]
-            iplist.append(ip)
-        final = Counter(iplist)
-        return final
+         targets = self.read_Authlog("Accepted")
+         iplist = []
+         for line in targets:
+             linesplit = line.split()
+             ip = linesplit[10]
+             user = linesplit[8]
+             iplist.append((user, ip))
+         final = Counter(iplist)
+         return final
 
     def parse_Authloginvaliduser(self):
         invalidusers = self.read_Authlog("Invalid user")
-        users = {}
+        users = []
         for line in invalidusers:
-            split = line.split()
-            users['{}'.format(split[7])] = split[9]
-        return users
+            linesplit = line.split()
+            user = linesplit[7]
+            ip = linesplit[9]
+            users.append((user, ip))
+        usersdict = Counter(users)
+        return usersdict
 
     def final_Print(self):
         accepteddict = self.parse_Authlogaccepted()
@@ -47,13 +78,14 @@ class Readlogs():
         print("\n")
         print("#### UnclassedPenguin Readlogs ####")
         print("\n")
-        print("/var/log/auth.log Accepted login IP Occurences: (number - ip)")
+        print("/var/log/auth.log")
+        print("Accepted logins: (user - number - ip)")
         for ip, number in accepteddict.items():
-            print("\t{} - {}".format(number, ip))
+            print("\t{} - {} - {}".format(ip[0], number, ip[1]))
         print("\n")
-        print("Failed login attempts: (user - ip)")
-        for user, ip in failedlogins.items():
-            print("\t{} - {}".format(user, ip))
+        print("Failed logins: (user - number - ip)")
+        for ip, number in failedlogins.items():
+            print("\t{} - {} - {}".format(ip[0], number, ip[1]))
         print("\n")
         try:
             if self.randonumber == 42:
@@ -66,12 +98,9 @@ class Readlogs():
         parser = argparse.ArgumentParser()
         parser.add_argument('-x', nargs='?', type=int, help = 'Just try it...')
         parser.add_argument('-w', nargs='?', type=str, help = 'File location where to save')
-        args = parser.parse_args()
-        self.savedir = args.w
-        self.randonumber = args.x
-        print("ARGS: {}".format(args))
-        print("SaveDir: {}".format(self.savedir))
-        print("RandoNumber: {}".format(self.randonumber))
+        self.args = parser.parse_args()
+        self.savedir = self.args.w
+        self.randonumber = self.args.x
 
 def main():
     Readlogs()
