@@ -22,9 +22,9 @@ def parse_Authlog():
 
 def final_Print():
     final = parse_Authlog()
-    print("/var/log/auth.log IP Occurences:")
+    print("/var/log/auth.log Accepted login IP Occurences: (ip - number)")
     for ip, number in final.items():
-        print("{} - {}".format(ip, number))
+        print("\t{} - {}".format(ip, number))
 
 def main():
     final_Print()
