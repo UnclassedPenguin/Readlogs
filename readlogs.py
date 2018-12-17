@@ -15,11 +15,18 @@ class Readlogs():
     def __init__(self, parent=None):
 
         #Uncomment next line to run some self tests
-        self.diagnostics()
-
-        self.read_argparse()
-        self.final_Print()
-
+        # self.diagnostics()
+        self.ask_User()
+        if self.option == '1':
+            self.ask_Userlogfile()
+            self.read_argparse()
+            self.final_Print()
+        elif self.option == '2':
+            print("Option 2")
+        elif self.option == '3':
+            exit()
+        else:
+            print("Other option")
         #Uncomment next line to run test function
         # self.test()
 
@@ -43,17 +50,33 @@ class Readlogs():
         for ip, number in final.items():
             print("{} - {} - {}".format(ip[0], number, ip[1]))
 
+    def ask_User(self):
+        print("\n")
+        print("###################################")
+        print("#### UnclassedPenguin Readlogs ####")
+        print("###################################")
+        print("\n")
+        print("1. Look at /var/log/auth.log")
+        print("2. This is another option")
+        print("3. Quit")
+        print("\n")
+        self.option = input("What would you like to do? (1, 2, 3...) ")
+        print("\n")
+        return self.option
+
+    def ask_Userlogfile(self):
+        print("\n")
+        self.authlogfile = input("What auth file in /var/log/ would you like to read? ")
+        print("\n")
+        return self.authlogfile
 
     def read_Authlog(self, findstr):
         # path = '/var/log/test-auth.log'
         # FINDSTRING = 'Accepted'
-        if self.filepath != None:
-            with open(self.filepath,'r') as f:
-                targets = [line for line in f if findstr in line]
-            return targets
-        elif self.filepath == None:
-            print("Something Bad Happened...")
-            return None
+        filepath = '/var/log/' + self.authlogfile
+        with open(filepath,'r') as f:
+            targets = [line for line in f if findstr in line]
+        return targets
 
     def parse_Authlogaccepted(self):
          targets = self.read_Authlog("Accepted")
@@ -89,10 +112,7 @@ class Readlogs():
         accepteddict = self.parse_Authlogaccepted()
         failedlogins = self.parse_Authloginvaliduser()
         if accepteddict != None and failedlogins != None:
-            print("\n")
-            print("#### UnclassedPenguin Readlogs ####")
-            print("\n")
-            print("/var/log/auth.log")
+            print("---- /var/log/auth.log ----")
             print("Accepted logins: (user - number - ip)")
             if len(accepteddict) == 0:
                 print("\tNone")
@@ -111,6 +131,7 @@ class Readlogs():
                     print("\n")
             except:
                 pass
+            Readlogs()
         elif accepteddict == None or failedlogins == None:
             print("SOMETHING REALLY BAD HAPPENED")
 
@@ -118,10 +139,8 @@ class Readlogs():
         parser = argparse.ArgumentParser()
         parser.add_argument('-x', nargs='?', type=int, help = 'Just try it...')
         parser.add_argument('-w', nargs='?', type=str, help = 'File location where to save')
-        parser.add_argument('-f', nargs='?', type=str, help = 'location of /var/log/auth.log')
         self.args = parser.parse_args()
         self.savedir = self.args.w
-        self.filepath = self.args.f
         self.randonumber = self.args.x
 
 def main():
